@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop All Products | UrbanCart</title>
+  <meta name="description" content="Browse UrbanCart's full product catalog. Filter by category, price, and more. Free shipping on orders over $75.">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .filter-toggle{display:none;margin-bottom:16px}
+    @media(max-width:1100px){.filter-toggle{display:flex}.filter-sidebar{display:none}.filter-sidebar.show{display:block}}
+    .active-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+    .filter-tag{display:inline-flex;align-items:center;gap:.4rem;background:var(--ink);color:#fff;border-radius:99px;padding:4px 12px;font-size:.75rem;font-weight:600}
+    .filter-tag button{background:none;border:none;color:rgba(255,255,255,.7);cursor:pointer;font-size:.9rem;line-height:1;padding:0 0 0 2px}
+    .empty-state{grid-column:1/-1;text-align:center;padding:80px 20px}
+    .empty-icon{font-size:3rem;margin-bottom:1rem}
+  </style>
+</head>
+<body class="page-transition">
+<div id="mainNav"></div>
+<div id="cartDrawer"></div>
+<div id="cookieMount"></div>
+
+<!-- PAGE HERO -->
+<div class="page-hero" style="padding-top:calc(var(--nav-h) + 24px + 40px)">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="../index.html">Home</a>
+      <span>/</span>
+      <span>Shop</span>
+    </div>
+    <h1>All Products</h1>
+    <p style="margin-top:.25rem;max-width:500px">Curated essentials across fashion, tech, and lifestyle. <span id="productCountHero"></span></p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <!-- TOOLBAR (mobile) -->
+    <button class="btn btn-outline filter-toggle" id="filterToggle">⚙ Filters</button>
+
+    <div class="shop-layout">
+      <!-- FILTER SIDEBAR -->
+      <aside class="filter-sidebar" id="filterSidebar">
+        <div class="filter-section">
+          <div class="filter-title">Categories</div>
+          <div class="filter-list" id="catFilters"></div>
+        </div>
+        <div class="filter-section">
+          <div class="filter-title">Price Range</div>
+          <div class="price-range">
+            <input type="number" class="price-input" id="priceMin" placeholder="Min" min="0">
+            <span style="color:var(--muted-2);font-size:.85rem">to</span>
+            <input type="number" class="price-input" id="priceMax" placeholder="Max" min="0">
+          </div>
+          <button class="btn btn-outline btn-sm" style="margin-top:10px;width:100%" id="applyPrice">Apply</button>
+        </div>
+        <div class="filter-section">
+          <div class="filter-title">Badge</div>
+          <div class="filter-list">
+            <label class="filter-item"><input type="checkbox" value="sale" class="badge-filter"> <label>On Sale</label></label>
+            <label class="filter-item"><input type="checkbox" value="new" class="badge-filter"> <label>New Arrivals</label></label>
+            <label class="filter-item"><input type="checkbox" value="hot" class="badge-filter"> <label>Hot Items</label></label>
+          </div>
+        </div>
+        <div class="filter-section">
+          <div class="filter-title">Rating</div>
+          <div class="filter-list">
+            <label class="filter-item"><input type="radio" name="rating" value="4.5"> <label>4.5+ Stars</label></label>
+            <label class="filter-item"><input type="radio" name="rating" value="4"> <label>4.0+ Stars</label></label>
+            <label class="filter-item"><input type="radio" name="rating" value="0" checked> <label>All Ratings</label></label>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-full" id="clearFilters" style="margin-top:8px">Clear All Filters</button>
+      </aside>
+
+      <!-- PRODUCT AREA -->
+      <div>
+        <!-- Active filters -->
+        <div class="active-filters" id="activeFilters"></div>
+
+        <!-- Toolbar -->
+        <div class="shop-toolbar">
+          <span class="shop-count" id="shopCount">Loading...</span>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="search-bar" style="width:220px">
+              <input type="search" class="search-input" placeholder="Search products..." id="searchInput" aria-label="Search">
+              <button class="search-btn" aria-label="Search">🔍</button>
+            </div>
+            <select class="sort-select" id="sortSelect" aria-label="Sort products">
+              <option value="featured">Featured</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="rating">Top Rated</option>
+              <option value="reviews">Most Reviewed</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="product-grid" id="shopGrid"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="mainFooter"></div>
+<div class="toast-container"></div>
+
+<script src="../js/store.js"></script>
+<script src="../js/shared-ui.js"></script>
+<script>
+const state = { cat: null, search: '', priceMin: 0, priceMax: Infinity, badges: [], rating: 0, sort: 'featured' };
+
+function init() {
+  // Check URL params
+  const params = new URLSearchParams(location.search);
+  if (params.get('cat')) state.cat = params.get('cat');
+
+  // Build category filters
+  const catFilters = document.getElementById('catFilters');
+  const cats = [...new Set(PRODUCTS.map(p => p.category))];
+  catFilters.innerHTML = cats.map(cat => `
+    <label class="filter-item">
+      <input type="checkbox" class="cat-filter" value="${cat}" ${state.cat === cat ? 'checked' : ''}>
+      <label>${cat}</label>
+      <span class="filter-count">${PRODUCTS.filter(p => p.category === cat).length}</span>
+    </label>
+  `).join('');
+
+  // Events
+  document.querySelectorAll('.cat-filter').forEach(cb => cb.addEventListener('change', () => {
+    const checked = [...document.querySelectorAll('.cat-filter:checked')].map(c => c.value);
+    state.cat = checked.length === 1 ? checked[0] : checked.length > 1 ? checked : null;
+    render();
+  }));
+
+  document.querySelectorAll('.badge-filter').forEach(cb => cb.addEventListener('change', () => {
+    state.badges = [...document.querySelectorAll('.badge-filter:checked')].map(c => c.value);
+    render();
+  }));
+
+  document.querySelectorAll('input[name="rating"]').forEach(r => r.addEventListener('change', () => {
+    state.rating = parseFloat(r.value);
+    render();
+  }));
+
+  document.getElementById('applyPrice').addEventListener('click', () => {
+    state.priceMin = parseFloat(document.getElementById('priceMin').value) || 0;
+    state.priceMax = parseFloat(document.getElementById('priceMax').value) || Infinity;
+    render();
+  });
+
+  document.getElementById('sortSelect').addEventListener('change', e => { state.sort = e.target.value; render(); });
+  document.getElementById('searchInput').addEventListener('input', e => { state.search = e.target.value.toLowerCase(); render(); });
+  document.getElementById('clearFilters').addEventListener('click', () => {
+    state.cat = null; state.search = ''; state.priceMin = 0; state.priceMax = Infinity; state.badges = []; state.rating = 0;
+    document.querySelectorAll('.cat-filter,.badge-filter').forEach(c => c.checked = false);
+    document.querySelector('input[name="rating"][value="0"]').checked = true;
+    document.getElementById('priceMin').value = '';
+    document.getElementById('priceMax').value = '';
+    document.getElementById('searchInput').value = '';
+    render();
+  });
+
+  document.getElementById('filterToggle').addEventListener('click', () => {
+    document.getElementById('filterSidebar').classList.toggle('show');
+  });
+
+  render();
+}
+
+function getFiltered() {
+  let products = [...PRODUCTS];
+  if (state.cat) {
+    const cats = Array.isArray(state.cat) ? state.cat : [state.cat];
+    products = products.filter(p => cats.includes(p.category));
+  }
+  if (state.search) products = products.filter(p => p.name.toLowerCase().includes(state.search) || p.category.toLowerCase().includes(state.search));
+  if (state.priceMin > 0) products = products.filter(p => p.price >= state.priceMin);
+  if (state.priceMax < Infinity) products = products.filter(p => p.price <= state.priceMax);
+  if (state.badges.length) products = products.filter(p => state.badges.includes(p.badge));
+  if (state.rating > 0) products = products.filter(p => p.rating >= state.rating);
+
+  switch (state.sort) {
+    case 'price-asc':  products.sort((a,b) => a.price - b.price); break;
+    case 'price-desc': products.sort((a,b) => b.price - a.price); break;
+    case 'rating':     products.sort((a,b) => b.rating - a.rating); break;
+    case 'reviews':    products.sort((a,b) => b.reviews - a.reviews); break;
+  }
+  return products;
+}
+
+function render() {
+  const products = getFiltered();
+  const grid = document.getElementById('shopGrid');
+  const count = document.getElementById('shopCount');
+  const heroCount = document.getElementById('productCountHero');
+  if (heroCount) heroCount.textContent = `${PRODUCTS.length} products available`;
+
+  count.textContent = `${products.length} product${products.length !== 1 ? 's' : ''} found`;
+
+  if (products.length === 0) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><h3>No products found</h3><p style="margin:.5rem 0 1.5rem">Try adjusting your filters or search terms</p><button class="btn btn-primary" onclick="document.getElementById('clearFilters').click()">Clear Filters</button></div>`;
+    return;
+  }
+
+  grid.innerHTML = products.map(p => buildProductCard(p, '../')).join('');
+
+  // Active filter tags
+  const tags = [];
+  if (state.cat) { const cats = Array.isArray(state.cat) ? state.cat : [state.cat]; cats.forEach(c => tags.push({ label: c, clear: () => { state.cat = null; document.querySelectorAll('.cat-filter').forEach(cb => cb.checked = false); render(); } })); }
+  if (state.search) tags.push({ label: `"${state.search}"`, clear: () => { state.search = ''; document.getElementById('searchInput').value = ''; render(); } });
+  document.getElementById('activeFilters').innerHTML = tags.map((t,i) => `<span class="filter-tag">${t.label}<button onclick="window._filterClear(${i})">×</button></span>`).join('');
+  window._filterClear = i => { tags[i].clear(); };
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product | UrbanCart</title>
+  <meta name="description" content="Shop premium products at UrbanCart. Free shipping on orders over $75.">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="page-transition">
+<div id="mainNav"></div>
+<div id="cartDrawer"></div>
+<div id="cookieMount"></div>
+
+<div style="padding-top:calc(var(--nav-h) + 40px + 24px)"><!-- offset for announce bar --></div>
+
+<section class="section" style="padding-top:0">
+  <div class="container" id="productDetail">
+    <div style="display:flex;align-items:center;justify-content:center;height:300px">
+      <p style="color:var(--muted-2)">Loading product...</p>
+    </div>
+  </div>
+</section>
+
+<section class="related-section">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="eyebrow">You might also like</span>
+      <h2>Related Products</h2>
+    </div>
+    <div class="product-grid" id="relatedGrid"></div>
+  </div>
+</section>
+
+<div id="mainFooter"></div>
+<div class="toast-container"></div>
+
+<script src="../js/store.js"></script>
+<script src="../js/shared-ui.js"></script>
+<script>
+let currentProduct = null;
+let selectedVariant = '';
+let qty = 1;
+
+function renderProduct(product) {
+  currentProduct = product;
+  document.title = `${product.name} | UrbanCart`;
+  const save = product.originalPrice ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
+  const stars = '★'.repeat(Math.round(product.rating)) + '☆'.repeat(5 - Math.round(product.rating));
+
+  document.getElementById('productDetail').innerHTML = `
+    <div class="breadcrumb">
+      <a href="../index.html">Home</a><span>/</span>
+      <a href="shop.html">Shop</a><span>/</span>
+      <a href="shop.html?cat=${encodeURIComponent(product.category)}">${product.category}</a><span>/</span>
+      <span>${product.name}</span>
+    </div>
+
+    <div class="product-detail-grid">
+      <!-- GALLERY -->
+      <div class="product-gallery">
+        <div class="gallery-main">
+          <img src="${product.images[0]}" alt="${product.name}" id="galleryMain" loading="eager">
+        </div>
+        <div class="gallery-thumbs">
+          ${product.images.map((img, i) => `
+            <div class="gallery-thumb ${i === 0 ? 'active' : ''}" onclick="switchImg('${img}', this)">
+              <img src="${img}" alt="View ${i + 1}" loading="lazy">
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- INFO -->
+      <div>
+        <div class="detail-badge-row">
+          ${product.badge === 'sale' ? '<span class="detail-badge sale">Sale</span>' : ''}
+          ${product.badge === 'new' ? '<span class="detail-badge new">New Arrival</span>' : ''}
+          ${product.badge === 'hot' ? '<span class="detail-badge bestseller">🔥 Hot</span>' : ''}
+          ${product.featured ? '<span class="detail-badge new">Best Seller</span>' : ''}
+        </div>
+
+        <h1 class="detail-title">${product.name}</h1>
+
+        <div class="detail-rating">
+          <span class="detail-stars">${stars}</span>
+          <span class="detail-rating-count">${product.rating} · (${product.reviews.toLocaleString()} reviews)</span>
+        </div>
+
+        <div class="detail-price-row">
+          <span class="detail-price">$${product.price.toFixed(2)}</span>
+          ${product.originalPrice ? `<span class="detail-price-orig">$${product.originalPrice.toFixed(2)}</span>` : ''}
+          ${save > 0 ? `<span class="detail-save">Save ${save}%</span>` : ''}
+        </div>
+
+        <p class="detail-desc">${product.description}</p>
+
+        ${product.colors ? `
+          <div class="detail-variants">
+            <div class="detail-variants-label">Color: <strong id="colorLabel">${product.colors[0]}</strong></div>
+            <div class="variant-options" id="colorOptions">
+              ${product.colors.map((c, i) => `
+                <button class="variant-btn ${i === 0 ? 'active' : ''}" onclick="selectColor(this, '${c}')">${c}</button>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        ${product.sizes ? `
+          <div class="detail-variants">
+            <div class="detail-variants-label">Size: <strong id="sizeLabel">Select a size</strong></div>
+            <div class="variant-options" id="sizeOptions">
+              ${product.sizes.map(s => `
+                <button class="variant-btn" onclick="selectSize(this, '${s}')">${s}</button>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        <div class="detail-qty">
+          <span class="detail-qty-label">Qty:</span>
+          <div class="detail-qty-ctrl">
+            <button class="dqty-btn" onclick="changeQty(-1)">−</button>
+            <span class="dqty-val" id="qtyDisplay">1</span>
+            <button class="dqty-btn" onclick="changeQty(1)">+</button>
+          </div>
+        </div>
+
+        <div class="detail-cta-row">
+          <button class="btn btn-primary btn-lg" id="addToCartBtn" onclick="addToCart()" style="flex:1">
+            Add to Cart
+          </button>
+          <button class="btn btn-outline btn-icon btn-lg" onclick="toggleWishDetail()" id="wishBtn" aria-label="Wishlist">
+            ${Wishlist.has(product.id) ? '❤️' : '🤍'}
+          </button>
+        </div>
+
+        <div class="detail-meta">
+          <div class="detail-meta-item">✅ <span><strong>In Stock</strong> — Ready to ship in 1–2 business days</span></div>
+          <div class="detail-meta-item">🚚 <span><strong>Free Shipping</strong> on orders over $75</span></div>
+          <div class="detail-meta-item">↩️ <span><strong>30-Day Returns</strong> — No questions asked</span></div>
+          <div class="detail-meta-item">🔒 <span><strong>Secure Payment</strong> — SSL encrypted checkout</span></div>
+        </div>
+
+        <div class="detail-accordion">
+          <div class="accordion-item">
+            <button class="accordion-btn">Product Features <span class="accordion-icon">+</span></button>
+            <div class="accordion-body">
+              <div class="accordion-inner">
+                <ul style="list-style:disc;padding-left:1.25rem;display:flex;flex-direction:column;gap:.4rem">
+                  ${product.features.map(f => `<li>${f}</li>`).join('')}
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <button class="accordion-btn">Shipping & Returns <span class="accordion-icon">+</span></button>
+            <div class="accordion-body">
+              <div class="accordion-inner">
+                <p><strong>Free Standard Shipping</strong> on orders over $75 (3–5 business days).<br>Expedited shipping available at checkout. Express (1–2 days) from $14.99.</p>
+                <p style="margin-top:.75rem"><strong>30-Day Returns:</strong> Return any item within 30 days of delivery in its original condition for a full refund. We'll provide a prepaid return label.</p>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <button class="accordion-btn">Care Instructions <span class="accordion-icon">+</span></button>
+            <div class="accordion-body">
+              <div class="accordion-inner">
+                <p>Please refer to the product label for specific care instructions. When in doubt, hand wash in cold water and air dry to preserve quality and extend product life.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Set initial variant
+  if (product.colors) selectedVariant = product.colors[0];
+
+  initAccordions();
+}
+
+function switchImg(src, thumbEl) {
+  document.getElementById('galleryMain').src = src;
+  document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
+  thumbEl.classList.add('active');
+}
+
+function selectColor(btn, color) {
+  document.querySelectorAll('#colorOptions .variant-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedVariant = color;
+  document.getElementById('colorLabel').textContent = color;
+}
+
+function selectSize(btn, size) {
+  document.querySelectorAll('#sizeOptions .variant-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedVariant = size;
+  document.getElementById('sizeLabel').textContent = size;
+}
+
+function changeQty(delta) {
+  qty = Math.min(Math.max(1, qty + delta), 10);
+  document.getElementById('qtyDisplay').textContent = qty;
+}
+
+function addToCart() {
+  if (!currentProduct) return;
+  Cart.add(currentProduct.id, qty, selectedVariant);
+  const btn = document.getElementById('addToCartBtn');
+  btn.textContent = '✓ Added to Cart!';
+  btn.style.background = 'var(--green)';
+  showToast(`${currentProduct.name} added to cart`, 'success');
+  openCart();
+  setTimeout(() => { btn.textContent = 'Add to Cart'; btn.style.background = ''; }, 2000);
+}
+
+function toggleWishDetail() {
+  if (!currentProduct) return;
+  const added = Wishlist.toggle(currentProduct.id);
+  document.getElementById('wishBtn').textContent = added ? '❤️' : '🤍';
+  showToast(added ? 'Added to wishlist' : 'Removed from wishlist');
+}
+
+function renderRelated(product) {
+  const related = PRODUCTS.filter(p => p.id !== product.id && p.category === product.category).slice(0, 4);
+  const fallback = related.length < 4 ? PRODUCTS.filter(p => p.id !== product.id && !related.includes(p)).slice(0, 4 - related.length) : [];
+  const items = [...related, ...fallback].slice(0, 4);
+  document.getElementById('relatedGrid').innerHTML = items.map(p => buildProductCard(p, '../')).join('');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(location.search);
+  const id = parseInt(params.get('id'));
+  const product = PRODUCTS.find(p => p.id === id);
+  if (product) {
+    renderProduct(product);
+    renderRelated(product);
+  } else {
+    document.getElementById('productDetail').innerHTML = `
+      <div style="text-align:center;padding:80px 0">
+        <div style="font-size:3rem;margin-bottom:1rem">😕</div>
+        <h2>Product Not Found</h2>
+        <p style="margin:.75rem 0 2rem">The product you're looking for doesn't exist or has been removed.</p>
+        <a href="shop.html" class="btn btn-primary">Browse All Products</a>
+      </div>`;
+  }
+});
+</script>
+</body>
+</html>

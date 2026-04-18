@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Cart | UrbanCart</title>
+  <meta name="description" content="Review your shopping cart and proceed to checkout at UrbanCart.">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .empty-cart{text-align:center;padding:100px 24px}
+    .empty-cart-icon{font-size:4rem;margin-bottom:1.5rem;opacity:.3}
+    .cart-actions{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+    @media(max-width:700px){.cart-table thead{display:none}.cart-table td{display:block;padding:6px 0}.cart-table tr{display:flex;flex-wrap:wrap;gap:12px;padding:16px 0;border-bottom:1px solid var(--border)}.cart-table tr td:first-child{width:80px}.cart-table td[data-label]::before{content:attr(data-label);font-size:.72rem;font-weight:700;text-transform:uppercase;color:var(--muted-2);display:block;margin-bottom:2px}}
+  </style>
+</head>
+<body class="page-transition">
+<div id="mainNav"></div>
+<div id="cartDrawer"></div>
+<div id="cookieMount"></div>
+
+<div class="page-hero" style="padding-top:calc(var(--nav-h) + 24px + 40px)">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="../index.html">Home</a><span>/</span><span>Cart</span>
+    </div>
+    <h1>Shopping Cart</h1>
+    <!-- Checkout step indicator -->
+    <div class="step-indicator" style="margin-top:1.25rem">
+      <div class="step active"><div class="step-dot">1</div> Cart</div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-dot">2</div> Checkout</div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-dot">3</div> Confirmation</div>
+    </div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container" id="cartPageContent">
+    <!-- Rendered by JS -->
+  </div>
+</section>
+
+<div id="mainFooter"></div>
+<div class="toast-container"></div>
+
+<script src="../js/store.js"></script>
+<script src="../js/shared-ui.js"></script>
+<script>
+function renderCartPage() {
+  const items = Cart.getItems();
+  const container = document.getElementById('cartPageContent');
+
+  if (items.length === 0) {
+    container.innerHTML = `
+      <div class="empty-cart">
+        <div class="empty-cart-icon">🛒</div>
+        <h2>Your Cart is Empty</h2>
+        <p style="margin:.75rem 0 0;max-width:380px;margin-left:auto;margin-right:auto">
+          Looks like you haven't added anything yet. Browse our curated collection to find something you'll love.
+        </p>
+        <div style="display:flex;gap:12px;justify-content:center;margin-top:2rem;flex-wrap:wrap">
+          <a href="shop.html" class="btn btn-primary btn-lg">Browse Products</a>
+          <a href="../index.html" class="btn btn-outline btn-lg">Back to Home</a>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const subtotal = Cart.getSubtotal();
+  const shipping = subtotal >= 75 ? 0 : 9.99;
+  const tax = subtotal * 0.08;
+  const total = subtotal + shipping + tax;
+
+  container.innerHTML = `
+    <div class="cart-page-grid">
+      <!-- CART ITEMS -->
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <h3 style="font-size:1rem">${items.reduce((s,i) => s + i.qty, 0)} item${items.reduce((s,i) => s + i.qty, 0) !== 1 ? 's' : ''} in your cart</h3>
+          <button class="btn btn-ghost" onclick="clearAll()" style="font-size:.8rem;color:var(--muted-2)">Clear all</button>
+        </div>
+        <table class="cart-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Price</th>
+              <th>Quantity</th>
+              <th>Total</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="cartTableBody"></tbody>
+        </table>
+        <div class="cart-actions">
+          <a href="shop.html" class="btn btn-outline">← Continue Shopping</a>
+        </div>
+      </div>
+
+      <!-- ORDER SUMMARY -->
+      <div class="cart-order-summary">
+        <h3 style="font-size:1.1rem;margin-bottom:20px">Order Summary</h3>
+        
+        <div class="cart-promo" style="margin-bottom:16px">
+          <input type="text" class="promo-input" placeholder="Promo code" id="promoCode" aria-label="Promo code">
+          <button class="promo-btn" onclick="applyPromo()">Apply</button>
+        </div>
+        
+        <div class="order-row">
+          <span class="order-row-label">Subtotal (${items.reduce((s,i) => s + i.qty, 0)} items)</span>
+          <span>$${subtotal.toFixed(2)}</span>
+        </div>
+        <div class="order-row">
+          <span class="order-row-label">Shipping</span>
+          <span>${shipping === 0 ? '<span style="color:var(--green)">Free</span>' : '$' + shipping.toFixed(2)}</span>
+        </div>
+        ${shipping > 0 ? `<div style="font-size:.78rem;color:var(--blue);padding:4px 0 8px">Add $${(75 - subtotal).toFixed(2)} more for free shipping</div>` : ''}
+        <div class="order-row">
+          <span class="order-row-label">Estimated Tax (8%)</span>
+          <span>$${tax.toFixed(2)}</span>
+        </div>
+        <div class="order-row total">
+          <span class="order-row-label">Total</span>
+          <span>$${total.toFixed(2)}</span>
+        </div>
+        <a href="checkout.html" class="btn btn-primary btn-full btn-lg" style="margin-top:20px">
+          Proceed to Checkout →
+        </a>
+        <div style="text-align:center;margin-top:12px">
+          <div style="display:flex;align-items:center;justify-content:center;gap:.4rem;font-size:.75rem;color:var(--muted-2)">
+            🔒 Secure checkout · SSL encrypted
+          </div>
+        </div>
+        <div style="display:flex;justify-content:center;gap:6px;margin-top:10px">
+          <span class="payment-icon" style="background:var(--surface-3);color:var(--muted);border:1px solid var(--border)">VISA</span>
+          <span class="payment-icon" style="background:var(--surface-3);color:var(--muted);border:1px solid var(--border)">MC</span>
+          <span class="payment-icon" style="background:var(--surface-3);color:var(--muted);border:1px solid var(--border)">AMEX</span>
+          <span class="payment-icon" style="background:var(--surface-3);color:var(--muted);border:1px solid var(--border)">PP</span>
+        </div>
+      </div>
+    </div>`;
+
+  renderTable(items);
+}
+
+function renderTable(items) {
+  const tbody = document.getElementById('cartTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = items.map(item => `
+    <tr>
+      <td>
+        <div class="cart-page-item-info">
+          <img src="${item.image}" alt="${item.name}" class="cart-table-img" loading="lazy">
+          <div>
+            <a href="product.html?id=${item.id}" style="font-weight:600;font-size:.9rem;color:var(--ink);display:block;margin-bottom:.2rem">${item.name}</a>
+            ${item.variant ? `<span style="font-size:.75rem;color:var(--muted-2)">${item.variant}</span>` : ''}
+          </div>
+        </div>
+      </td>
+      <td data-label="Price"><span style="font-weight:500;font-size:.9rem">$${item.price.toFixed(2)}</span></td>
+      <td data-label="Qty">
+        <div class="detail-qty-ctrl" style="width:fit-content">
+          <button class="dqty-btn" onclick="updateItem('${item.key}', ${item.qty - 1})">−</button>
+          <span class="dqty-val">${item.qty}</span>
+          <button class="dqty-btn" onclick="updateItem('${item.key}', ${item.qty + 1})">+</button>
+        </div>
+      </td>
+      <td data-label="Total"><span style="font-weight:700;font-size:.95rem">$${(item.price * item.qty).toFixed(2)}</span></td>
+      <td>
+        <button onclick="removeItem('${item.key}')" style="background:none;border:none;color:var(--muted-2);cursor:pointer;font-size:1.1rem;padding:4px" title="Remove">🗑</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function updateItem(key, qty) {
+  Cart.updateQty(key, qty);
+  renderCartPage();
+}
+
+function removeItem(key) {
+  Cart.remove(key);
+  showToast('Item removed from cart');
+  renderCartPage();
+}
+
+function clearAll() {
+  if (confirm('Remove all items from cart?')) {
+    Cart.clear();
+    renderCartPage();
+  }
+}
+
+function applyPromo() {
+  const code = document.getElementById('promoCode').value.trim().toUpperCase();
+  if (code === 'URBAN10') {
+    showToast('Promo code applied! 10% discount added.', 'success');
+  } else if (code) {
+    showToast('Invalid promo code. Try URBAN10', 'error');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderCartPage();
+  document.addEventListener('cart:updated', renderCartPage);
+});
+</script>
+</body>
+</html>

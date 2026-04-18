@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us | UrbanCart</title>
+  <meta name="description" content="Contact UrbanCart support — we're here to help with orders, returns, and any questions. Reach us by email, phone, or our contact form.">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="page-transition">
+<div id="mainNav"></div>
+<div id="cartDrawer"></div>
+<div id="cookieMount"></div>
+
+<div class="page-hero" style="padding-top:calc(var(--nav-h) + 24px + 40px)">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="../index.html">Home</a><span>/</span><span>Contact Us</span>
+    </div>
+    <h1>We'd Love to Hear<br>From You</h1>
+    <p style="margin-top:.5rem;max-width:480px">Whether it's a question about an order, a product recommendation, or just a hello — our team is here and genuinely happy to help.</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="contact-grid">
+      <!-- Contact Info -->
+      <div>
+        <span class="eyebrow" style="margin-bottom:1.5rem;display:block">Get in Touch</span>
+
+        <div class="contact-info-card reveal">
+          <div class="contact-icon">📍</div>
+          <div class="contact-info-text">
+            <strong>Our Address</strong>
+            <p>1247 Market Street, Suite 400<br>San Francisco, CA 94103, USA</p>
+          </div>
+        </div>
+        <div class="contact-info-card reveal">
+          <div class="contact-icon">✉️</div>
+          <div class="contact-info-text">
+            <strong>Email Us</strong>
+            <a href="mailto:hello@urbancart.com">hello@urbancart.com</a>
+            <p style="margin-top:.25rem">We reply within 24 hours on business days</p>
+          </div>
+        </div>
+        <div class="contact-info-card reveal">
+          <div class="contact-icon">📞</div>
+          <div class="contact-info-text">
+            <strong>Phone</strong>
+            <a href="tel:+14155550199">(415) 555-0199</a>
+            <p style="margin-top:.25rem">Mon–Fri, 9am–6pm Pacific Time</p>
+          </div>
+        </div>
+        <div class="contact-info-card reveal">
+          <div class="contact-icon">💬</div>
+          <div class="contact-info-text">
+            <strong>Live Chat</strong>
+            <p>Available on the website<br>Mon–Fri, 9am–8pm PT</p>
+          </div>
+        </div>
+
+        <!-- FAQ quick links -->
+        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-top:24px" class="reveal">
+          <h4 style="margin-bottom:14px;font-size:.95rem">Common Questions</h4>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <a href="#" style="font-size:.85rem;color:var(--blue)">→ Where is my order?</a>
+            <a href="#" style="font-size:.85rem;color:var(--blue)">→ How do I start a return?</a>
+            <a href="#" style="font-size:.85rem;color:var(--blue)">→ Can I change or cancel my order?</a>
+            <a href="#" style="font-size:.85rem;color:var(--blue)">→ Do you offer international shipping?</a>
+            <a href="#" style="font-size:.85rem;color:var(--blue)">→ How do promo codes work?</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Form -->
+      <div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:36px" class="reveal">
+          <h3 style="margin-bottom:6px">Send Us a Message</h3>
+          <p style="margin-bottom:24px;font-size:.88rem">Fill out the form and we'll get back to you within one business day.</p>
+
+          <div id="contactSuccess" style="display:none;text-align:center;padding:40px 0">
+            <div style="font-size:2.5rem;margin-bottom:1rem">✅</div>
+            <h3>Message Received!</h3>
+            <p style="margin:.5rem 0">Thank you for reaching out. We'll reply to your email within 24 hours.</p>
+            <button onclick="resetContactForm()" class="btn btn-outline" style="margin-top:1.5rem">Send Another Message</button>
+          </div>
+
+          <form id="contactForm" novalidate>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="cFirstName">First Name <sup>*</sup></label>
+                <input type="text" id="cFirstName" class="form-input" placeholder="John" required>
+                <span class="form-error" id="err-cFirstName">Required</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="cLastName">Last Name <sup>*</sup></label>
+                <input type="text" id="cLastName" class="form-input" placeholder="Smith" required>
+                <span class="form-error" id="err-cLastName">Required</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="cEmail">Email Address <sup>*</sup></label>
+              <input type="email" id="cEmail" class="form-input" placeholder="john@email.com" required>
+              <span class="form-error" id="err-cEmail">Please enter a valid email</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="cPhone">Phone Number <sup>*</sup></label>
+              <input type="tel" id="cPhone" class="form-input" placeholder="(555) 000-0000" required>
+              <span class="form-error" id="err-cPhone">Please enter a valid phone number</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="cSubject">Subject</label>
+              <select id="cSubject" class="form-input form-select">
+                <option value="">Select a topic</option>
+                <option>Order Status / Tracking</option>
+                <option>Returns & Exchanges</option>
+                <option>Product Question</option>
+                <option>Payment Issue</option>
+                <option>Technical Support</option>
+                <option>Wholesale Inquiry</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="cMessage">Message <sup>*</sup></label>
+              <textarea id="cMessage" class="form-input form-textarea" placeholder="Tell us how we can help you..." required></textarea>
+              <span class="form-error" id="err-cMessage">Please write your message</span>
+            </div>
+            <div class="checkbox-wrap">
+              <input type="checkbox" id="cConsent" required>
+              <label class="checkbox-label" for="cConsent">
+                I agree to UrbanCart's <a href="privacy.html">Privacy Policy</a>. My contact information will only be used to respond to this inquiry. <sup style="color:var(--red)">*</sup>
+              </label>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full" style="height:50px;font-size:.95rem" id="contactSubmitBtn">
+              Send Message →
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="mainFooter"></div>
+<div class="toast-container"></div>
+
+<script src="../js/store.js"></script>
+<script src="../js/shared-ui.js"></script>
+<script>
+document.getElementById('contactForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  let valid = true;
+
+  const checks = [
+    { id: 'cFirstName', fn: v => v.trim().length > 0 },
+    { id: 'cLastName',  fn: v => v.trim().length > 0 },
+    { id: 'cEmail',     fn: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
+    { id: 'cPhone',     fn: v => v.replace(/\D/g,'').length >= 10 },
+    { id: 'cMessage',   fn: v => v.trim().length > 10 }
+  ];
+
+  checks.forEach(c => {
+    const el = document.getElementById(c.id);
+    const err = document.getElementById('err-' + c.id);
+    const ok = c.fn(el.value);
+    el.classList.toggle('error', !ok);
+    if (err) err.classList.toggle('show', !ok);
+    if (!ok) valid = false;
+  });
+
+  if (!document.getElementById('cConsent').checked) {
+    showToast('Please agree to the Privacy Policy to continue', 'error');
+    valid = false;
+  }
+
+  if (!valid) return;
+
+  const btn = document.getElementById('contactSubmitBtn');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+
+  setTimeout(() => {
+    document.getElementById('contactForm').style.display = 'none';
+    document.getElementById('contactSuccess').style.display = 'block';
+  }, 1200);
+});
+
+function resetContactForm() {
+  document.getElementById('contactForm').reset();
+  document.getElementById('contactForm').style.display = 'block';
+  document.getElementById('contactSuccess').style.display = 'none';
+  const btn = document.getElementById('contactSubmitBtn');
+  btn.textContent = 'Send Message →';
+  btn.disabled = false;
+}
+</script>
+</body>
+</html>

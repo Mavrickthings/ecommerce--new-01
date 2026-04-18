@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog — Shopping Guides & Tips | UrbanCart</title>
+  <meta name="description" content="UrbanCart blog — expert buying guides, product comparisons, and shopping tips to help you get the most value from every purchase.">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="page-transition">
+<div id="mainNav"></div>
+<div id="cartDrawer"></div>
+<div id="cookieMount"></div>
+
+<div class="page-hero" style="padding-top:calc(var(--nav-h) + 24px + 40px)">
+  <div class="container">
+    <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>Blog</span></div>
+    <span class="eyebrow">UrbanCart Journal</span>
+    <h1>Shopping Guides<br>& Expert Tips</h1>
+    <p style="margin-top:.75rem;max-width:480px">Honest product knowledge, buying guides, and lifestyle inspiration — written by people who genuinely love what they do.</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <!-- Featured post -->
+    <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:32px;margin-bottom:48px;background:var(--surface);border:1px solid var(--border-2);border-radius:var(--radius-lg);overflow:hidden" class="reveal">
+      <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80" 
+           alt="Online shopping guide" style="width:100%;height:380px;object-fit:cover;display:block">
+      <div style="padding:40px 36px 40px 0;display:flex;flex-direction:column;justify-content:center">
+        <span class="blog-tag">Featured · Buying Guide</span>
+        <h2 style="font-size:clamp(1.4rem,2.5vw,2rem);line-height:1.25;margin-bottom:1rem">
+          <a href="buying-guide.html">The Ultimate Online Shopping Guide: How to Find Quality Products Every Time</a>
+        </h2>
+        <p style="font-size:.95rem;margin-bottom:1.5rem">Stop wasting money on items that disappoint. Our expert guide covers everything from reading reviews to spotting quality materials before you buy.</p>
+        <div class="blog-meta" style="margin-bottom:1.5rem"><span>June 15, 2025</span><span>·</span><span>6 min read</span><span>·</span><span>By Alex Morgan</span></div>
+        <a href="buying-guide.html" class="btn btn-primary" style="width:fit-content">Read Article →</a>
+      </div>
+    </div>
+
+    <!-- All posts grid -->
+    <div class="section-header reveal">
+      <span class="eyebrow">All Articles</span>
+      <h2>Latest from the Journal</h2>
+    </div>
+    <div class="blog-grid">
+      <article class="blog-card reveal">
+        <div class="blog-img-wrap">
+          <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&q=80" alt="Shopping guide" class="blog-card-img" loading="lazy">
+        </div>
+        <div class="blog-card-body">
+          <span class="blog-tag">Buying Guide</span>
+          <h3><a href="buying-guide.html">The Ultimate Online Shopping Guide: How to Find Quality Products Every Time</a></h3>
+          <p>Everything from reading reviews to spotting quality materials — your comprehensive guide to smarter online shopping.</p>
+          <div class="blog-meta"><span>June 15, 2025</span><span>·</span><span>6 min read</span></div>
+        </div>
+      </article>
+      <article class="blog-card reveal">
+        <div class="blog-img-wrap">
+          <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80" alt="Watch buying guide" class="blog-card-img" loading="lazy">
+        </div>
+        <div class="blog-card-body">
+          <span class="blog-tag">Product Tips</span>
+          <h3><a href="watch-guide.html">How to Choose Your First Quality Watch (Without Breaking the Bank)</a></h3>
+          <p>A watch is more than timekeeping. Here's everything you need to know before making your first serious watch purchase.</p>
+          <div class="blog-meta"><span>June 8, 2025</span><span>·</span><span>7 min read</span></div>
+        </div>
+      </article>
+      <article class="blog-card reveal">
+        <div class="blog-img-wrap">
+          <img src="https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=600&q=80" alt="Sneaker guide" class="blog-card-img" loading="lazy">
+        </div>
+        <div class="blog-card-body">
+          <span class="blog-tag">Lifestyle</span>
+          <h3><a href="sneaker-guide.html">Running Shoes vs. Lifestyle Sneakers: Which Should You Buy First?</a></h3>
+          <p>Performance meets street style. We break down the key differences and help you decide which investment makes more sense.</p>
+          <div class="blog-meta"><span>May 29, 2025</span><span>·</span><span>5 min read</span></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- Newsletter signup in blog -->
+<div class="newsletter-band">
+  <div class="container">
+    <div class="newsletter-inner">
+      <div class="reveal">
+        <span class="eyebrow" style="color:rgba(255,255,255,.45)">Never Miss a Guide</span>
+        <h2>New Articles Every Week</h2>
+        <p>Shopping tips, product reviews, and buying guides delivered straight to your inbox.</p>
+      </div>
+      <div class="reveal">
+        <form class="newsletter-form" onsubmit="subBlog(event)">
+          <input type="email" class="newsletter-input" placeholder="Your email address" required aria-label="Email">
+          <button type="submit" class="newsletter-btn" id="blogSubBtn">Subscribe</button>
+        </form>
+        <p class="newsletter-note">No spam. Unsubscribe anytime. <a href="../pages/privacy.html" style="color:rgba(255,255,255,.4)">Privacy Policy</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="mainFooter"></div>
+<div class="toast-container"></div>
+
+<script src="../js/store.js"></script>
+<script src="../js/shared-ui.js"></script>
+<script>
+function subBlog(e) {
+  e.preventDefault();
+  const btn = document.getElementById('blogSubBtn');
+  btn.textContent = '✓ Subscribed!';
+  btn.style.background = '#00875a';
+  btn.style.color = '#fff';
+  e.target.querySelector('input').value = '';
+  setTimeout(() => { btn.textContent = 'Subscribe'; btn.style.background = ''; btn.style.color = ''; }, 3000);
+}
+</script>
+</body>
+</html>

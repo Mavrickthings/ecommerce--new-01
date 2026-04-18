@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout | UrbanCart</title>
+  <meta name="description" content="Complete your UrbanCart order securely. SSL-encrypted checkout.">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .payment-option{display:flex;align-items:center;gap:.75rem;padding:14px;border:1.5px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:var(--transition);margin-bottom:8px}
+    .payment-option:hover,.payment-option.selected{border-color:var(--ink)}
+    .payment-option input[type="radio"]{accent-color:var(--ink)}
+    .payment-option-label{font-size:.88rem;font-weight:500}
+    .card-fields{padding:12px 0 0;display:none}
+    .card-fields.show{display:block}
+    .secure-badge{display:flex;align-items:center;gap:.5rem;font-size:.78rem;color:var(--muted-2);margin-top:12px;justify-content:center}
+    #successState{display:none;text-align:center;padding:60px 24px}
+  </style>
+</head>
+<body class="page-transition">
+<div id="mainNav"></div>
+<div id="cartDrawer"></div>
+<div id="cookieMount"></div>
+
+<div class="page-hero" style="padding-top:calc(var(--nav-h) + 24px + 40px)">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="../index.html">Home</a><span>/</span>
+      <a href="cart.html">Cart</a><span>/</span>
+      <span>Checkout</span>
+    </div>
+    <h1>Checkout</h1>
+    <div class="step-indicator" style="margin-top:1.25rem">
+      <div class="step done"><div class="step-dot">✓</div> Cart</div>
+      <div class="step-line" style="background:var(--green)"></div>
+      <div class="step active"><div class="step-dot">2</div> Checkout</div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-dot">3</div> Confirmation</div>
+    </div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <!-- SUCCESS STATE -->
+    <div id="successState">
+      <div class="success-icon">✓</div>
+      <h2>Order Confirmed!</h2>
+      <p style="margin:.75rem 0 .5rem;font-size:1rem">Thank you for your order. A confirmation email has been sent.</p>
+      <p style="font-size:.88rem;color:var(--muted-2);margin-bottom:2rem">Order #UC-<span id="orderNum"></span> · Estimated delivery: 3–5 business days</p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <a href="shop.html" class="btn btn-primary">Continue Shopping</a>
+        <a href="../index.html" class="btn btn-outline">Back to Home</a>
+      </div>
+    </div>
+
+    <!-- CHECKOUT FORM -->
+    <div id="checkoutMain">
+      <div class="checkout-grid">
+        <!-- LEFT: FORMS -->
+        <div>
+          <!-- Contact Info -->
+          <div class="checkout-card">
+            <div class="checkout-card-title">
+              <span>1</span> Contact Information
+            </div>
+            <form id="checkoutForm" novalidate>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="firstName">First Name <sup>*</sup></label>
+                  <input type="text" id="firstName" name="firstName" class="form-input" placeholder="John" required autocomplete="given-name">
+                  <span class="form-error" id="err-firstName">Please enter your first name</span>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="lastName">Last Name <sup>*</sup></label>
+                  <input type="text" id="lastName" name="lastName" class="form-input" placeholder="Smith" required autocomplete="family-name">
+                  <span class="form-error" id="err-lastName">Please enter your last name</span>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="email">Email Address <sup>*</sup></label>
+                  <input type="email" id="email" name="email" class="form-input" placeholder="john@email.com" required autocomplete="email">
+                  <span class="form-error" id="err-email">Please enter a valid email</span>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="phone">Phone Number <sup>*</sup></label>
+                  <input type="tel" id="phone" name="phone" class="form-input" placeholder="(555) 000-0000" required autocomplete="tel">
+                  <span class="form-error" id="err-phone">Please enter a valid phone number</span>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Shipping Address -->
+          <div class="checkout-card">
+            <div class="checkout-card-title"><span>2</span> Shipping Address</div>
+            <div class="form-group">
+              <label class="form-label" for="address">Street Address <sup>*</sup></label>
+              <input type="text" id="address" class="form-input" placeholder="123 Main Street, Apt 4B" required autocomplete="street-address">
+              <span class="form-error" id="err-address">Please enter your street address</span>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="city">City <sup>*</sup></label>
+                <input type="text" id="city" class="form-input" placeholder="San Francisco" required autocomplete="address-level2">
+                <span class="form-error" id="err-city">Please enter your city</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="state">State <sup>*</sup></label>
+                <select id="state" class="form-input form-select" required>
+                  <option value="">Select state</option>
+                  <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option>
+                  <option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option>
+                  <option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option>
+                  <option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option>
+                  <option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option>
+                  <option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option>
+                  <option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option>
+                  <option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option>
+                  <option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option>
+                  <option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option>
+                  <option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option>
+                  <option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option>
+                  <option>Wisconsin</option><option>Wyoming</option>
+                </select>
+                <span class="form-error" id="err-state">Please select your state</span>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="zip">ZIP Code <sup>*</sup></label>
+                <input type="text" id="zip" class="form-input" placeholder="94103" maxlength="10" required autocomplete="postal-code">
+                <span class="form-error" id="err-zip">Please enter a valid ZIP code</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="country">Country</label>
+                <select id="country" class="form-input form-select" autocomplete="country-name">
+                  <option>United States</option>
+                  <option>Canada</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shipping Method -->
+          <div class="checkout-card">
+            <div class="checkout-card-title"><span>3</span> Shipping Method</div>
+            <label class="payment-option selected" id="ship1">
+              <input type="radio" name="shipping" value="free" checked>
+              <div>
+                <div class="payment-option-label">Standard Shipping (3–5 days)</div>
+                <div style="font-size:.75rem;color:var(--muted-2)">Free on orders over $75</div>
+              </div>
+              <span style="margin-left:auto;font-weight:700;color:var(--green)" id="shipFreeLabel">Free</span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="shipping" value="express">
+              <div>
+                <div class="payment-option-label">Express Shipping (1–2 days)</div>
+                <div style="font-size:.75rem;color:var(--muted-2)">Arrives by tomorrow if ordered before 2pm</div>
+              </div>
+              <span style="margin-left:auto;font-weight:700">$14.99</span>
+            </label>
+          </div>
+
+          <!-- Payment -->
+          <div class="checkout-card">
+            <div class="checkout-card-title"><span>4</span> Payment</div>
+            <label class="payment-option selected" onclick="showCardFields(true)">
+              <input type="radio" name="payment" value="card" checked>
+              <span class="payment-option-label">💳 Credit / Debit Card</span>
+            </label>
+            <div class="card-fields show" id="cardFields">
+              <div class="form-group">
+                <label class="form-label" for="cardNum">Card Number <sup>*</sup></label>
+                <input type="text" id="cardNum" class="form-input" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCard(this)">
+                <span class="form-error" id="err-cardNum">Please enter a valid card number</span>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="cardExp">Expiry <sup>*</sup></label>
+                  <input type="text" id="cardExp" class="form-input" placeholder="MM / YY" maxlength="7" oninput="formatExpiry(this)">
+                  <span class="form-error" id="err-cardExp">Please enter a valid expiry</span>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="cardCvv">CVV <sup>*</sup></label>
+                  <input type="text" id="cardCvv" class="form-input" placeholder="123" maxlength="4">
+                  <span class="form-error" id="err-cardCvv">Please enter CVV</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="cardName">Name on Card <sup>*</sup></label>
+                <input type="text" id="cardName" class="form-input" placeholder="John Smith">
+                <span class="form-error" id="err-cardName">Please enter the name on card</span>
+              </div>
+            </div>
+            <label class="payment-option" onclick="showCardFields(false)">
+              <input type="radio" name="payment" value="paypal">
+              <span class="payment-option-label">🅿️ PayPal</span>
+            </label>
+            <label class="payment-option" onclick="showCardFields(false)">
+              <input type="radio" name="payment" value="apple">
+              <span class="payment-option-label">🍎 Apple Pay</span>
+            </label>
+
+            <div class="checkbox-wrap" style="margin-top:20px">
+              <input type="checkbox" id="privacyConsent" required>
+              <label class="checkbox-label" for="privacyConsent">
+                I agree to UrbanCart's <a href="privacy.html">Privacy Policy</a> and 
+                <a href="terms.html">Terms of Service</a>. I understand my order information will be used to fulfill my purchase. <sup style="color:var(--red)">*</sup>
+              </label>
+            </div>
+          </div>
+
+          <button class="btn btn-primary btn-full btn-lg" onclick="placeOrder()" id="placeOrderBtn">
+            Place Order →
+          </button>
+          <div class="secure-badge" style="margin-top:12px">🔒 Your payment info is encrypted and secure</div>
+        </div>
+
+        <!-- RIGHT: ORDER SUMMARY -->
+        <div class="cart-order-summary" style="position:sticky;top:calc(var(--nav-h) + 24px)">
+          <h3 style="font-size:1rem;margin-bottom:16px">Your Order</h3>
+          <div id="orderItemsList"></div>
+          <div style="border-top:1px solid var(--border);margin:12px 0"></div>
+          <div class="order-row">
+            <span class="order-row-label">Subtotal</span>
+            <span id="checkoutSubtotal">$0.00</span>
+          </div>
+          <div class="order-row">
+            <span class="order-row-label">Shipping</span>
+            <span id="checkoutShipping">—</span>
+          </div>
+          <div class="order-row">
+            <span class="order-row-label">Tax (8%)</span>
+            <span id="checkoutTax">—</span>
+          </div>
+          <div class="order-row total">
+            <span class="order-row-label">Total</span>
+            <span id="checkoutTotal">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="mainFooter"></div>
+<div class="toast-container"></div>
+
+<script src="../js/store.js"></script>
+<script src="../js/shared-ui.js"></script>
+<script>
+function renderOrderSummary() {
+  const items = Cart.getItems();
+  const subtotal = Cart.getSubtotal();
+  const shipping = subtotal >= 75 ? 0 : 9.99;
+  const tax = subtotal * 0.08;
+  const total = subtotal + shipping + tax;
+
+  document.getElementById('orderItemsList').innerHTML = items.map(item => `
+    <div class="checkout-order-item">
+      <img src="${item.image}" alt="${item.name}" class="checkout-order-img" loading="lazy">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:.85rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.name}</div>
+        ${item.variant ? `<div style="font-size:.72rem;color:var(--muted-2)">${item.variant}</div>` : ''}
+        <div style="font-size:.78rem;color:var(--muted-2)">Qty: ${item.qty}</div>
+      </div>
+      <span style="font-size:.9rem;font-weight:700;flex-shrink:0">$${(item.price * item.qty).toFixed(2)}</span>
+    </div>
+  `).join('');
+
+  document.getElementById('checkoutSubtotal').textContent = '$' + subtotal.toFixed(2);
+  document.getElementById('checkoutShipping').innerHTML = shipping === 0 ? '<span style="color:var(--green)">Free</span>' : '$' + shipping.toFixed(2);
+  document.getElementById('checkoutTax').textContent = '$' + tax.toFixed(2);
+  document.getElementById('checkoutTotal').textContent = '$' + total.toFixed(2);
+}
+
+function showCardFields(show) {
+  document.getElementById('cardFields').classList.toggle('show', show);
+  document.querySelectorAll('.payment-option').forEach(op => op.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+}
+
+function formatCard(input) {
+  let val = input.value.replace(/\D/g,'').substring(0,16);
+  input.value = val.replace(/(.{4})/g,'$1 ').trim();
+}
+
+function formatExpiry(input) {
+  let val = input.value.replace(/\D/g,'').substring(0,4);
+  if (val.length >= 2) val = val.substring(0,2) + ' / ' + val.substring(2);
+  input.value = val;
+}
+
+function validate() {
+  const fields = [
+    { id: 'firstName', check: v => v.trim().length > 0 },
+    { id: 'lastName',  check: v => v.trim().length > 0 },
+    { id: 'email',     check: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
+    { id: 'phone',     check: v => v.replace(/\D/g,'').length >= 10 },
+    { id: 'address',   check: v => v.trim().length > 5 },
+    { id: 'city',      check: v => v.trim().length > 0 },
+    { id: 'state',     check: v => v !== '' },
+    { id: 'zip',       check: v => /^\d{5}(-\d{4})?$/.test(v.trim()) }
+  ];
+
+  const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value;
+  if (paymentMethod === 'card') {
+    fields.push(
+      { id: 'cardNum',  check: v => v.replace(/\s/g,'').length === 16 },
+      { id: 'cardExp',  check: v => v.length === 7 },
+      { id: 'cardCvv',  check: v => v.length >= 3 },
+      { id: 'cardName', check: v => v.trim().length > 2 }
+    );
+  }
+
+  let valid = true;
+  fields.forEach(f => {
+    const el = document.getElementById(f.id);
+    const err = document.getElementById('err-' + f.id);
+    if (!el) return;
+    const ok = f.check(el.value);
+    el.classList.toggle('error', !ok);
+    if (err) err.classList.toggle('show', !ok);
+    if (!ok) valid = false;
+  });
+
+  if (!document.getElementById('privacyConsent').checked) {
+    showToast('Please agree to the Privacy Policy and Terms', 'error');
+    valid = false;
+  }
+
+  return valid;
+}
+
+function placeOrder() {
+  if (Cart.getItems().length === 0) {
+    showToast('Your cart is empty', 'error');
+    return;
+  }
+  if (!validate()) {
+    showToast('Please fill in all required fields', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('placeOrderBtn');
+  btn.textContent = 'Processing...';
+  btn.disabled = true;
+
+  setTimeout(() => {
+    const orderNum = Math.floor(Math.random() * 900000 + 100000);
+    document.getElementById('orderNum').textContent = orderNum;
+    Cart.clear();
+    document.getElementById('checkoutMain').style.display = 'none';
+    document.getElementById('successState').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, 1800);
+}
+
+// Shipping selection
+document.querySelectorAll('input[name="shipping"]').forEach(radio => {
+  radio.addEventListener('change', e => {
+    document.querySelectorAll('#ship1, .payment-option').forEach(op => {
+      if (op.contains(e.target)) op.classList.add('selected');
+    });
+    renderOrderSummary();
+  });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderOrderSummary();
+  if (Cart.getItems().length === 0 && !document.getElementById('orderNum').textContent) {
+    // Allow empty checkout for demo purposes
+  }
+});
+</script>
+</body>
+</html>
